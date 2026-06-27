@@ -5,6 +5,7 @@ from src.infrastructure.persistence.models.factory import (
     MachineModel,
     ProductionLineModel,
 )
+from src.infrastructure.persistence.models.metrics import MachineMetricModel
 from src.infrastructure.persistence.models.identity import (
     PermissionModel,
     RoleModel,
@@ -24,4 +25,5 @@ __all__ = [
     "FactoryModel",
     "ProductionLineModel",
     "MachineModel",
+    "MachineMetricModel",
 ]

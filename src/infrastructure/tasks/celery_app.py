@@ -1,6 +1,7 @@
 """Celery application configuration."""
 
 from celery import Celery
+from celery.signals import worker_process_init
 
 from src.infrastructure.config.settings import get_settings
 
@@ -29,6 +30,10 @@ celery_app.conf.update(
         "src.infrastructure.tasks.maintenance.*": {"queue": "maintenance"},
     },
     beat_schedule={
+        "dispatch-simulation-ticks": {
+            "task": "src.infrastructure.tasks.simulation.dispatch_simulation_ticks",
+            "schedule": 1.0,
+        },
         "aggregate-metrics": {
             "task": "src.infrastructure.tasks.monitoring.aggregate_metrics",
             "schedule": 300.0,
@@ -47,5 +52,13 @@ celery_app.conf.update(
 celery_app.autodiscover_tasks(
     [
         "src.infrastructure.tasks",
+        "src.infrastructure.tasks.simulation",
     ]
 )
+
+
+@worker_process_init.connect
+def init_celery_worker(**_kwargs: object) -> None:
+    from src.infrastructure.persistence.database import init_db
+
+    init_db(get_settings())
