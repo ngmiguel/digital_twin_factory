@@ -14,6 +14,7 @@ from src.infrastructure.persistence.database import close_db, init_db
 from src.presentation.api.v1.router import api_v1_router, health_router_root
 from src.presentation.middleware.correlation_id import CorrelationIdMiddleware
 from src.presentation.middleware.error_handler import register_exception_handlers
+from src.presentation.websocket.router import router as websocket_router
 
 
 @asynccontextmanager
@@ -64,6 +65,7 @@ def create_app() -> FastAPI:
 
     app.include_router(health_router_root)
     app.include_router(api_v1_router)
+    app.include_router(websocket_router)
 
     return app
 
