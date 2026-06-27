@@ -77,8 +77,8 @@ src/
 | 1 | `docs: add project vision and enterprise architecture` | ✅ Done |
 | 2 | `chore: initialize project structure and dependencies` | ✅ Done |
 | 3 | `feat(auth): implement JWT authentication service` | ✅ Done |
-| 4 | `feat(factory): implement factory and machine management` | Planifié |
-| 7 | `feat(simulation): implement virtual machine engine` | Planifié |
+| 4 | `feat(factory): implement factory and machine management` | ✅ Done |
+| 5 | `feat(simulation): implement virtual machine engine` | Planifié |
 | 8 | `feat(realtime): add WebSocket and Redis pub/sub` | Planifié |
 | 9 | `feat(monitoring): add metrics, alerts and logging` | Planifié |
 | 10 | `feat(prediction): add Celery tasks for predictive maintenance` | Planifié |
