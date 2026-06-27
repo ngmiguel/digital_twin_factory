@@ -83,8 +83,8 @@ src/
 | 7 | `feat(monitoring): add metrics, alerts and logging` | ✅ Done |
 | 8 | `feat(prediction): add Celery tasks for predictive maintenance` | ✅ Done |
 | 9 | `feat(notification): add alert notification service` | ✅ Done |
-| 12 | `test: add unit, integration and e2e tests` | Planifié |
-| 13 | `ci: add GitHub Actions pipeline` | Planifié |
+| 10 | `test: add unit, integration and e2e tests` | ✅ Done |
+| 11 | `ci: add GitHub Actions pipeline` | ✅ Done |
 
 ## Auteur
 
