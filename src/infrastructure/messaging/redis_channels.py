@@ -13,3 +13,7 @@ def factory_alerts_channel(tenant_id: UUID, factory_id: UUID) -> str:
 
 def machine_status_channel(tenant_id: UUID, machine_id: UUID) -> str:
     return f"tenant:{tenant_id}:machine:{machine_id}:status"
+
+
+def user_notifications_channel(tenant_id: UUID, user_id: UUID) -> str:
+    return f"tenant:{tenant_id}:user:{user_id}:notifications"

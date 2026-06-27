@@ -60,6 +60,7 @@ celery_app.autodiscover_tasks(
         "src.infrastructure.tasks.monitoring",
         "src.infrastructure.tasks.prediction",
         "src.infrastructure.tasks.maintenance",
+        "src.infrastructure.tasks.notification",
     ]
 )
 
