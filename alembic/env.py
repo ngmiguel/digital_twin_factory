@@ -10,6 +10,12 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.infrastructure.config.settings import get_settings
 from src.infrastructure.persistence.base import Base
+from src.infrastructure.persistence.models import (  # noqa: F401
+    PermissionModel,
+    RoleModel,
+    TenantModel,
+    UserModel,
+)
 
 config = context.config
 
