@@ -7,12 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.factory.enums import FactoryStatus
 from src.domain.factory.factory import Factory
+from src.infrastructure.persistence.repositories.alert_repository import AlertRepository
 from src.infrastructure.persistence.models.factory import FactoryModel, MachineModel, ProductionLineModel
 
 
 class FactoryRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self._alert_repo = AlertRepository(session)
 
     async def get_by_id(self, factory_id: UUID, tenant_id: UUID) -> Factory | None:
         result = await self._session.execute(
@@ -48,7 +50,8 @@ class FactoryRepository:
         items: list[tuple[Factory, int, int]] = []
         for model in factories:
             machine_count = await self.count_machines(model.id, tenant_id)
-            items.append((self._to_domain(model), machine_count, 0))
+            active_alerts = await self._alert_repo.count_active_by_factory(model.id, tenant_id)
+            items.append((self._to_domain(model), machine_count, active_alerts))
 
         return items, total
 
@@ -105,6 +108,9 @@ class FactoryRepository:
             )
         )
         return result.scalar_one()
+
+    async def count_active_alerts(self, factory_id: UUID, tenant_id: UUID) -> int:
+        return await self._alert_repo.count_active_by_factory(factory_id, tenant_id)
 
     @staticmethod
     def _to_domain(model: FactoryModel) -> Factory:
