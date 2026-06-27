@@ -20,6 +20,7 @@ from src.domain.factory.factory import Factory
 from src.domain.factory.machine import Machine
 from src.domain.factory.production_line import ProductionLine
 from src.domain.shared.exceptions import EntityNotFoundError
+from src.application.handlers.simulation.simulation_coordinator import SimulationCoordinator
 from src.infrastructure.persistence.repositories.factory_repository import FactoryRepository
 from src.infrastructure.persistence.repositories.machine_repository import MachineRepository
 from src.infrastructure.persistence.repositories.production_line_repository import (
@@ -37,11 +38,13 @@ class FactoryService:
         factory_repo: FactoryRepository,
         line_repo: ProductionLineRepository,
         machine_repo: MachineRepository,
+        simulation_coordinator: SimulationCoordinator | None = None,
     ) -> None:
         self._uow = uow
         self._factory_repo = factory_repo
         self._line_repo = line_repo
         self._machine_repo = machine_repo
+        self._simulation_coordinator = simulation_coordinator
 
     async def create_factory(self, tenant_id: UUID, request: CreateFactoryRequest) -> FactoryResponse:
         factory = Factory.create(
@@ -195,6 +198,8 @@ class FactoryService:
         machine.start()
         await self._machine_repo.update(machine)
         await self._uow.commit()
+        if self._simulation_coordinator is not None:
+            self._simulation_coordinator.start_simulation(tenant_id, machine_id)
         return self._machine_to_response(machine)
 
     async def stop_machine(self, tenant_id: UUID, machine_id: UUID) -> MachineResponse:
@@ -202,6 +207,8 @@ class FactoryService:
         machine.stop()
         await self._machine_repo.update(machine)
         await self._uow.commit()
+        if self._simulation_coordinator is not None:
+            self._simulation_coordinator.stop_simulation(tenant_id, machine_id)
         return self._machine_to_response(machine)
 
     async def _require_factory(self, factory_id: UUID, tenant_id: UUID) -> Factory:
