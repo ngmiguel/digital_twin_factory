@@ -77,14 +77,14 @@ src/
 | 1 | `docs: add project vision and enterprise architecture` | ✅ Done |
 | 2 | `chore: initialize project structure and dependencies` | ✅ Done |
 | 3 | `feat(auth): implement JWT authentication service` | ✅ Done |
-| 4 | `feat(factory): implement factory and machine management` | Planifié |
-| 7 | `feat(simulation): implement virtual machine engine` | Planifié |
-| 8 | `feat(realtime): add WebSocket and Redis pub/sub` | Planifié |
-| 9 | `feat(monitoring): add metrics, alerts and logging` | Planifié |
-| 10 | `feat(prediction): add Celery tasks for predictive maintenance` | Planifié |
-| 11 | `feat(notification): add alert notification service` | Planifié |
-| 12 | `test: add unit, integration and e2e tests` | Planifié |
-| 13 | `ci: add GitHub Actions pipeline` | Planifié |
+| 4 | `feat(factory): implement factory and machine management` | ✅ Done |
+| 5 | `feat(simulation): implement virtual machine engine` | ✅ Done |
+| 6 | `feat(realtime): add WebSocket and Redis pub/sub` | ✅ Done |
+| 7 | `feat(monitoring): add metrics, alerts and logging` | ✅ Done |
+| 8 | `feat(prediction): add Celery tasks for predictive maintenance` | ✅ Done |
+| 9 | `feat(notification): add alert notification service` | ✅ Done |
+| 10 | `test: add unit, integration and e2e tests` | ✅ Done |
+| 11 | `ci: add GitHub Actions pipeline` | ✅ Done |
 
 ## Auteur
 

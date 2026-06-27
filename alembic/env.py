@@ -11,7 +11,11 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from src.infrastructure.config.settings import get_settings
 from src.infrastructure.persistence.base import Base
 from src.infrastructure.persistence.models import (  # noqa: F401
+    FactoryModel,
+    MachineModel,
+    MachineMetricModel,
     PermissionModel,
+    ProductionLineModel,
     RoleModel,
     TenantModel,
     UserModel,

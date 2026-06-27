@@ -91,6 +91,26 @@ class UserRepository:
         permissions = sorted({perm.name for role in model.roles for perm in role.permissions})
         return roles, permissions
 
+    async def list_user_ids_by_roles(self, tenant_id: UUID, role_names: list[str]) -> list[UUID]:
+        if not role_names:
+            return []
+        result = await self._session.execute(
+            select(UserModel.id)
+            .join(user_roles, UserModel.id == user_roles.c.user_id)
+            .join(RoleModel, RoleModel.id == user_roles.c.role_id)
+            .where(
+                UserModel.tenant_id == tenant_id,
+                UserModel.is_active.is_(True),
+                RoleModel.name.in_(role_names),
+            )
+            .distinct()
+        )
+        return list(result.scalars().all())
+
+    async def get_email(self, user_id: UUID) -> str | None:
+        result = await self._session.execute(select(UserModel.email).where(UserModel.id == user_id))
+        return result.scalar_one_or_none()
+
     @staticmethod
     def _to_domain(model: UserModel) -> User:
         return User(
