@@ -83,7 +83,10 @@ class FactoryService:
     async def get_factory(self, tenant_id: UUID, factory_id: UUID) -> FactoryResponse:
         factory = await self._require_factory(factory_id, tenant_id)
         machine_count = await self._factory_repo.count_machines(factory_id, tenant_id)
-        return self._factory_to_response(factory, machine_count=machine_count, active_alerts=0)
+        active_alerts = await self._factory_repo.count_active_alerts(factory_id, tenant_id)
+        return self._factory_to_response(
+            factory, machine_count=machine_count, active_alerts=active_alerts
+        )
 
     async def update_factory(
         self, tenant_id: UUID, factory_id: UUID, request: UpdateFactoryRequest
