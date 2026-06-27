@@ -74,11 +74,9 @@ src/
 
 | # | Commit | Statut |
 |---|--------|--------|
-| 1 | `docs: add project vision and enterprise architecture` | En cours |
-| 2 | `docs: define bounded contexts and domain model` | Planifié |
-| 3 | `docs: add database schema and use cases` | Planifié |
-| 4 | `chore: initialize project structure and dependencies` | Planifié |
-| 5 | `feat(auth): implement JWT authentication service` | Planifié |
+| 1 | `docs: add project vision and enterprise architecture` | ✅ Done |
+| 2 | `chore: initialize project structure and dependencies` | ✅ Done |
+| 3 | `feat(auth): implement JWT authentication service` | Planifié |
 | 6 | `feat(factory): implement factory and machine management` | Planifié |
 | 7 | `feat(simulation): implement virtual machine engine` | Planifié |
 | 8 | `feat(realtime): add WebSocket and Redis pub/sub` | Planifié |

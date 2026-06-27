@@ -1,0 +1,1 @@
+"""CQRS commands — write operations."""

@@ -1,0 +1,158 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dtf:dtf@postgres:5432/digital_twin_factory
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/2
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+      API_RELOAD: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - dtf-network
+
+  simulation-worker:
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    command: celery -A src.infrastructure.tasks.celery_app worker -Q simulation -c 2 --loglevel=info
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dtf:dtf@postgres:5432/digital_twin_factory
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/2
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dtf-network
+
+  monitoring-worker:
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    command: celery -A src.infrastructure.tasks.celery_app worker -Q monitoring,maintenance -c 2 --loglevel=info
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dtf:dtf@postgres:5432/digital_twin_factory
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/2
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dtf-network
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    command: celery -A src.infrastructure.tasks.celery_app beat --loglevel=info
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dtf:dtf@postgres:5432/digital_twin_factory
+      CELERY_BROKER_URL: redis://redis:6379/2
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - dtf-network
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: digital_twin_factory
+      POSTGRES_USER: dtf
+      POSTGRES_PASSWORD: dtf
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dtf -d digital_twin_factory"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dtf-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dtf-network
+
+  flower:
+    build:
+      context: .
+      dockerfile: docker/worker/Dockerfile
+    command: celery -A src.infrastructure.tasks.celery_app flower --port=5555
+    ports:
+      - "5555:5555"
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/2
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+    depends_on:
+      redis:
+        condition: service_healthy
+    profiles:
+      - tools
+    networks:
+      - dtf-network
+
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - tools
+    networks:
+      - dtf-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  dtf-network:
+    driver: bridge

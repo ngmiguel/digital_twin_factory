@@ -1,0 +1,1 @@
+"""CQRS queries — read operations."""
