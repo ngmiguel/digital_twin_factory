@@ -6,6 +6,7 @@ from src.infrastructure.messaging.redis_channels import (
     factory_alerts_channel,
     factory_metrics_channel,
     machine_status_channel,
+    user_notifications_channel,
 )
 
 
@@ -28,3 +29,10 @@ def test_machine_status_channel_format() -> None:
     machine_id = uuid4()
     channel = machine_status_channel(tenant_id, machine_id)
     assert str(machine_id) in channel
+
+
+def test_user_notifications_channel_format() -> None:
+    tenant_id = uuid4()
+    user_id = uuid4()
+    channel = user_notifications_channel(tenant_id, user_id)
+    assert channel == f"tenant:{tenant_id}:user:{user_id}:notifications"
