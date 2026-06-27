@@ -103,6 +103,14 @@ class MachineRepository:
         await self._session.delete(model)
         await self._session.flush()
 
+    async def get_factory_id(self, machine_id: UUID, tenant_id: UUID) -> UUID | None:
+        result = await self._session.execute(
+            select(ProductionLineModel.factory_id)
+            .join(MachineModel, MachineModel.production_line_id == ProductionLineModel.id)
+            .where(MachineModel.id == machine_id, MachineModel.tenant_id == tenant_id)
+        )
+        return result.scalar_one_or_none()
+
     @staticmethod
     def _to_domain(model: MachineModel) -> Machine:
         return Machine(

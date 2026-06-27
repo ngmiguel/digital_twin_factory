@@ -13,6 +13,7 @@ from src.infrastructure.persistence.base import Base
 from src.infrastructure.persistence.models import (  # noqa: F401
     FactoryModel,
     MachineModel,
+    MachineMetricModel,
     PermissionModel,
     ProductionLineModel,
     RoleModel,
