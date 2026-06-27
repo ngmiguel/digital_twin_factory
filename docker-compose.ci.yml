@@ -1,4 +1,4 @@
-"""E2E stack for CI — API + PostgreSQL + Redis."""
+# E2E stack for CI — API + PostgreSQL + Redis
 
 services:
   postgres:
