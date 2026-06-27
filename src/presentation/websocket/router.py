@@ -4,7 +4,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, Query, WebSocket
 
-from src.presentation.websocket.handlers import handle_factory_websocket, handle_machine_websocket
+from src.presentation.websocket.handlers import (
+    handle_factory_websocket,
+    handle_machine_websocket,
+    handle_notifications_websocket,
+)
 
 router = APIRouter(tags=["WebSocket"])
 
@@ -25,3 +29,11 @@ async def machine_metrics_stream(
     token: str = Query(..., description="JWT access token"),
 ) -> None:
     await handle_machine_websocket(websocket, machine_id, token)
+
+
+@router.websocket("/ws/notifications")
+async def notifications_stream(
+    websocket: WebSocket,
+    token: str = Query(..., description="JWT access token"),
+) -> None:
+    await handle_notifications_websocket(websocket, token)

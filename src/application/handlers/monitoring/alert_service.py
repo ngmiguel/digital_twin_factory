@@ -181,6 +181,18 @@ class AlertService:
         )
         await redis.publish(channel, payload)
 
+        if alert.severity in (AlertSeverity.CRITICAL, AlertSeverity.EMERGENCY):
+            from src.infrastructure.tasks.notification import notify_alert
+
+            notify_alert.delay(
+                str(tenant_id),
+                str(alert.id),
+                alert.severity.value,
+                alert.message,
+                str(machine_id),
+                alert.alert_type.value,
+            )
+
     @staticmethod
     def _to_response(alert: Alert) -> AlertResponse:
         return AlertResponse(

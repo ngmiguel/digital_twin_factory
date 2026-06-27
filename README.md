@@ -82,7 +82,7 @@ src/
 | 6 | `feat(realtime): add WebSocket and Redis pub/sub` | ✅ Done |
 | 7 | `feat(monitoring): add metrics, alerts and logging` | ✅ Done |
 | 8 | `feat(prediction): add Celery tasks for predictive maintenance` | ✅ Done |
-| 11 | `feat(notification): add alert notification service` | Planifié |
+| 9 | `feat(notification): add alert notification service` | ✅ Done |
 | 12 | `test: add unit, integration and e2e tests` | Planifié |
 | 13 | `ci: add GitHub Actions pipeline` | Planifié |
 

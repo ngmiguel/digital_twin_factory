@@ -112,6 +112,15 @@ class PredictionService:
         )
         await self._maintenance_repo.add(record)
         logger.info("maintenance.scheduled", machine_id=str(machine_id), maintenance_id=str(record.id))
+
+        from src.infrastructure.tasks.notification import notify_maintenance
+
+        notify_maintenance.delay(
+            str(tenant_id),
+            str(record.id),
+            str(machine_id),
+            record.description,
+        )
         return record
 
     async def _require_machine(self, machine_id: UUID, tenant_id: UUID) -> object:

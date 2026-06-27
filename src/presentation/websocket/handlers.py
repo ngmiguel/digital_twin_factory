@@ -11,7 +11,7 @@ from redis.asyncio import Redis
 
 from src.domain.shared.exceptions import AuthenticationError, EntityNotFoundError, PermissionDeniedError
 from src.infrastructure.cache.redis_client import _redis_client
-from src.infrastructure.messaging.redis_channels import factory_alerts_channel, factory_metrics_channel
+from src.infrastructure.messaging.redis_channels import factory_alerts_channel, factory_metrics_channel, user_notifications_channel
 from src.infrastructure.persistence.repositories.factory_repository import FactoryRepository
 from src.infrastructure.persistence.repositories.machine_repository import MachineRepository
 from src.infrastructure.persistence.database import _session_factory
@@ -175,3 +175,62 @@ async def handle_machine_websocket(websocket: WebSocket, machine_id: UUID, token
     finally:
         factory_connection_manager.disconnect(user.tenant_id, factory_id, websocket)
         logger.info("websocket.disconnected", machine_id=str(machine_id))
+
+
+async def handle_notifications_websocket(websocket: WebSocket, token: str) -> None:
+    if _redis_client is None:
+        await websocket.close(code=1011, reason="Redis not available")
+        return
+
+    try:
+        user = authenticate_websocket(token, "notification:read")
+    except (AuthenticationError, PermissionDeniedError):
+        await websocket.close(code=1008, reason="Unauthorized")
+        return
+
+    await websocket.accept()
+    channel = user_notifications_channel(user.tenant_id, user.user_id)
+    pubsub = _redis_client.pubsub()
+    await pubsub.subscribe(channel)
+
+    heartbeat_task = asyncio.create_task(_notifications_heartbeat(websocket))
+
+    logger.info(
+        "websocket.notifications.connected",
+        user_id=str(user.user_id),
+        tenant_id=str(user.tenant_id),
+    )
+
+    try:
+        while True:
+            message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=1.0)
+            if message and message.get("type") == "message":
+                data = message["data"]
+                if isinstance(data, bytes):
+                    data = data.decode()
+                await websocket.send_text(data)
+
+            try:
+                client_msg = await asyncio.wait_for(websocket.receive_text(), timeout=0.1)
+                parsed = json.loads(client_msg)
+                if parsed.get("type") == "pong":
+                    continue
+            except asyncio.TimeoutError:
+                pass
+            except json.JSONDecodeError:
+                pass
+    except WebSocketDisconnect:
+        pass
+    finally:
+        heartbeat_task.cancel()
+        await pubsub.unsubscribe(channel)
+        await pubsub.close()
+        logger.info("websocket.notifications.disconnected", user_id=str(user.user_id))
+
+
+async def _notifications_heartbeat(websocket: WebSocket) -> None:
+    while True:
+        await asyncio.sleep(_HEARTBEAT_INTERVAL)
+        await websocket.send_text(
+            json.dumps({"type": "ping", "timestamp": datetime.now(UTC).isoformat()})
+        )
