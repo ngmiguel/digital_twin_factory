@@ -55,6 +55,23 @@ async def run_machine_tick(machine_id: UUID, tenant_id: UUID) -> dict[str, objec
 
         factory_id = await machine_repo.get_factory_id(machine_id, tenant_id)
         if factory_id is not None:
+            from src.application.handlers.monitoring.alert_service import AlertService
+            from src.infrastructure.persistence.repositories.alert_repository import AlertRepository
+            from src.infrastructure.persistence.unit_of_work import SQLAlchemyUnitOfWork
+
+            alert_service = AlertService(
+                uow=SQLAlchemyUnitOfWork(session),
+                alert_repo=AlertRepository(session),
+            )
+            machine_failed = result.new_status == MachineStatus.FAILURE
+            await alert_service.process_simulation_tick(
+                machine,
+                result.metrics,
+                factory_id,
+                redis_async,
+                machine_failed=machine_failed,
+            )
+
             channel = f"tenant:{tenant_id}:factory:{factory_id}:metrics"
             payload = json.dumps(
                 {
