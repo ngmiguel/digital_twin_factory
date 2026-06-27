@@ -79,6 +79,21 @@ class Machine(AggregateRoot):
     def stop(self) -> None:
         self._change_status(MachineStatus.OFFLINE)
 
+    def mark_maintenance(self) -> None:
+        self._change_status(MachineStatus.MAINTENANCE)
+
+    def complete_maintenance(self) -> None:
+        if self.status not in (
+            MachineStatus.FAILURE,
+            MachineStatus.MAINTENANCE,
+            MachineStatus.DEGRADED,
+        ):
+            raise ValidationError(
+                "Machine must be in FAILURE, MAINTENANCE or DEGRADED state",
+                field="status",
+            )
+        self._change_status(MachineStatus.OFFLINE)
+
     def update(
         self,
         name: str | None = None,
