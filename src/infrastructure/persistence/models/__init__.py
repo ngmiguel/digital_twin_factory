@@ -1,5 +1,10 @@
 """SQLAlchemy ORM models."""
 
+from src.infrastructure.persistence.models.factory import (
+    FactoryModel,
+    MachineModel,
+    ProductionLineModel,
+)
 from src.infrastructure.persistence.models.identity import (
     PermissionModel,
     RoleModel,
@@ -16,4 +21,7 @@ __all__ = [
     "PermissionModel",
     "user_roles",
     "role_permissions",
+    "FactoryModel",
+    "ProductionLineModel",
+    "MachineModel",
 ]
