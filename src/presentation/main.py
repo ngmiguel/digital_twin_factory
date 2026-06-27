@@ -11,7 +11,7 @@ from src.infrastructure.cache.redis_client import close_redis, init_redis
 from src.infrastructure.config.settings import get_settings
 from src.infrastructure.logging.setup import setup_logging
 from src.infrastructure.persistence.database import close_db, init_db
-from src.presentation.api.v1.router import api_v1_router
+from src.presentation.api.v1.router import api_v1_router, health_router_root
 from src.presentation.middleware.correlation_id import CorrelationIdMiddleware
 from src.presentation.middleware.error_handler import register_exception_handlers
 
@@ -62,6 +62,7 @@ def create_app() -> FastAPI:
 
     register_exception_handlers(app)
 
+    app.include_router(health_router_root)
     app.include_router(api_v1_router)
 
     return app
