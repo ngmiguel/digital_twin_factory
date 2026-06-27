@@ -11,9 +11,12 @@ from src.application.dto.factory import (
     MachineResponse,
     UpdateMachineRequest,
 )
+from src.application.dto.prediction import PredictionListResponse
 from src.application.handlers.factory.factory_service import FactoryService
+from src.application.handlers.prediction.prediction_service import PredictionService
 from src.presentation.dependencies.auth import CurrentUser, require_permission
 from src.presentation.dependencies.factory import get_factory_service
+from src.presentation.dependencies.prediction import get_prediction_service
 
 router = APIRouter()
 
@@ -91,3 +94,21 @@ async def stop_machine(
     service: Annotated[FactoryService, Depends(get_factory_service)],
 ) -> MachineResponse:
     return await service.stop_machine(user.tenant_id, machine_id)
+
+
+@router.get("/machines/{machine_id}/predictions", response_model=PredictionListResponse)
+async def list_machine_predictions(
+    machine_id: UUID,
+    user: Annotated[CurrentUser, Depends(require_permission("prediction:read"))],
+    service: Annotated[PredictionService, Depends(get_prediction_service)],
+    valid_only: bool = Query(default=True),
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=20, ge=1, le=100),
+) -> PredictionListResponse:
+    return await service.list_machine_predictions(
+        user.tenant_id,
+        machine_id,
+        valid_only=valid_only,
+        page=page,
+        size=size,
+    )
