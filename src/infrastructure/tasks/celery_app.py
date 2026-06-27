@@ -46,6 +46,10 @@ celery_app.conf.update(
             "task": "src.infrastructure.tasks.maintenance.cleanup_expired_tokens",
             "schedule": 86400.0,
         },
+        "run-failure-predictions": {
+            "task": "src.infrastructure.tasks.prediction.run_failure_prediction_all",
+            "schedule": 900.0,
+        },
     },
 )
 
@@ -53,6 +57,9 @@ celery_app.autodiscover_tasks(
     [
         "src.infrastructure.tasks",
         "src.infrastructure.tasks.simulation",
+        "src.infrastructure.tasks.monitoring",
+        "src.infrastructure.tasks.prediction",
+        "src.infrastructure.tasks.maintenance",
     ]
 )
 
